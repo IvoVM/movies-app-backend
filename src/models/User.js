@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs";
 const userSchema = new Schema(
   {
     username: String,
-    email: String,
     password: String,
   },
   {
@@ -21,5 +20,19 @@ userSchema.methods.encryptPassword = async (password) => {
 userSchema.methods.comparePassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
+
+userSchema.static("availableName", async function (userName) {
+  if (!userName) return false;
+  try {
+    const user = await this.findOne({username:userName});
+    if (user) {
+      return false;
+    } else {
+      return true;
+    }
+  } catch (error) {
+    return false;
+  }
+});
 
 export default model("User", userSchema);
